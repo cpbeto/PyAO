@@ -55,21 +55,26 @@ def render(x, y):
     for sprite in sprite_pool.values():
         sprite.disable()
 
-    for j in range(-camera_height, camera_height):
-        for i in range(-camera_width, camera_width):
+    for j in range(-camera_height//2, camera_height//2):
+        for i in range(-camera_width//2, camera_width//2):
             map_x, map_y = x + i, y + j
+            # TODO: Clean up these indices
             tile = tiles[map_x + 100 * map_y]
 
+            # TODO: Re-define these data structures so access is straightforward
             grh_index = tile['grh'][0] # Layer 0
             grh = grh_data[grh_index]
 
             filenum = grh['filenum']
+
+            # TODO: Abstract this into a TexturePool class
             if filenum not in texture_pool:
                 texture_pool[filenum] = Texture(PIL.Image.open(GRAPHICS_PATH + str(filenum) + '.BMP').convert('RGBA'))
 
             texture = texture_pool[filenum]
             width, height = texture.size
 
+            # TODO: Clean this up, refactor sprite pool
             if (map_x, map_y) not in sprite_pool:
                 s = Sprite(
                     texture,
