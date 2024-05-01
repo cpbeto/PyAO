@@ -8,7 +8,6 @@ ASSETS_PATH = 'assets/'
 GRAPHICS_PATH = ASSETS_PATH + 'graphics/'
 MAPS_PATH = ASSETS_PATH + 'maps/'
 
-position = (0, 0)
 
 app = Ursina()
 
@@ -28,21 +27,21 @@ grh_data = grh.load()
 camera_width = ceil(width / 32)
 camera_height = ceil(height / 32)
 
-class Player(Entity):
-    def input(self, key):
-        if key == 'w':
-            self.position += self.up
 
-        if key == 's':
-            self.position += self.down
+need_to_render = True
+position = Vec3(50, 50, 0)
+def input(key):
+    global need_to_render, position
 
-        if key == 'd':
-            self.position += self.right
-
-        if key == 'a':
-            self.position += self.left
-
-player = Player(position = (50, 50, 0))
+    need_to_render = True
+    if key == 'w':
+        position += (0,1,0)
+    elif key == 's':
+        position -= (0,1,0)
+    elif key == 'd':
+        position += (1,0,0)
+    elif key == 'a':
+        position -= (1,0,0)
 
 
 from pstat_debug import pstat
@@ -51,6 +50,8 @@ texture_pool = {}
 sprite_pool = {}
 @pstat
 def render(x, y):
+    x, y = int(x), int(y)
+
     for sprite in sprite_pool.values():
         sprite.disable()
 
@@ -83,17 +84,12 @@ def render(x, y):
                 sprite_pool[(map_x, map_y)].enable()
 
 
-position = (int(player.position[0]), int(player.position[1]))
-render(position[0], position[1])
-
-
 def update():
-    global position
-    current_position = (int(player.position[0]), int(player.position[1]))
+    global need_to_render, position
 
-    if position != current_position:
-        position = current_position
-        render(position[0], position[1])
+    if need_to_render:
+        need_to_render = False
+        render(position.x, position.y)
 
     # global texture_pool, sprite_pool
     # print(f'# Textures: {len(texture_pool)}')
