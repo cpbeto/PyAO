@@ -3,6 +3,7 @@ import PIL.Image
 
 import map
 import grh
+from texture import TexturePool
 
 
 ASSETS_PATH = 'assets/'
@@ -61,7 +62,7 @@ def input(key):
 
 from pstat_debug import pstat
 
-texture_pool = {}
+texturePool = TexturePool()
 sprite_pool = {}
 @pstat
 def render(x, y):
@@ -79,7 +80,6 @@ def render(x, y):
         for j in range(-camera_height//2, camera_height//2 + 1):
             for i in range(-camera_width//2, camera_width//2 + 1):
                 map_x, map_y = x + i, y - j
-                print(f'{map_x} | {map_y}')
 
                 # Camera out of bounds
                 # TODO: Render adyacent map?
@@ -100,13 +100,9 @@ def render(x, y):
                 if grh['num_frames'] != 1:
                     continue
 
-                filenum = grh['filenum']
+                filename = str(grh['filenum'])
 
-                # TODO: Abstract this into TexturePool()
-                if filenum not in texture_pool:
-                    texture_pool[filenum] = Texture(PIL.Image.open(GRAPHICS_PATH + str(filenum) + '.BMP').convert('RGBA'))
-
-                texture = texture_pool[filenum]
+                texture = texturePool[filename]
                 width, height = texture.size
 
                 # TODO: Clean this up, refactor sprite pool
