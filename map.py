@@ -50,26 +50,26 @@ def load(map_number: int):
                 tile['blocked'] = flags & 1
 
                 # Read tile graphic indexes
-                grh = []
+                grh = [None] * 4
 
                 data = f.read(Struct('<H').size)
                 grh_index = Struct('<H').unpack_from(data)[0]
-                grh.append(grh_index)
+                grh[0] = grh_index
 
                 if (flags & 2):
                     data = f.read(Struct('<H').size)
                     grh_index = Struct('<H').unpack_from(data)[0]
-                    grh.append(grh_index)
+                    grh[1] = grh_index
 
                 if (flags & 4):
                     data = f.read(Struct('<H').size)
                     grh_index = Struct('<H').unpack_from(data)[0]
-                    grh.append(grh_index)
+                    grh[2] = grh_index
 
                 if (flags & 8):
                     data = f.read(Struct('<H').size)
                     grh_index = Struct('<H').unpack_from(data)[0]
-                    grh.append(grh_index)
+                    grh[3] = grh_index
 
                 tile['grh'] = grh
 
