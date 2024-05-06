@@ -33,7 +33,7 @@ tiles = map['tiles']
 grh_data = grh.load()
 
 
-layer_enabled = [True, False, False, False]
+layer_enabled = [True] * 4
 need_to_render = True
 position = Vec3(50, 50, 0)
 def input(key):
@@ -60,11 +60,8 @@ def input(key):
         layer_enabled[3] = not layer_enabled[3]
 
 
-from pstat_debug import pstat
-
 texturePool = TexturePool()
 sprite_pool = {}
-@pstat
 def render(x, y):
     global layer_enabled
 
@@ -76,20 +73,20 @@ def render(x, y):
     for k in range(4):
         if not layer_enabled[k]:
             continue
-
+        
         for j in range(-camera_height//2, camera_height//2 + 1):
             for i in range(-camera_width//2, camera_width//2 + 1):
-                map_x, map_y = x + i, y - j
+                map_position = Vec3(x + i, y - j, k)
 
                 # Camera out of bounds
                 # TODO: Render adyacent map?
-                if map_x not in range(100):
+                if map_position.x < 0 or map_position.x >= 100:
                     continue
-                if map_y not in range(100):
+                if map_position.y < 0 or map_position.y >= 100:
                     continue
 
                 # TODO: Clean up these indices
-                tile = tiles[map_x + 100 * map_y]
+                tile = tiles[int(map_position.x) + 100 * int(map_position.y)]
 
                 # TODO: Re-define these data structures so access is straightforward
                 grh_index = tile['grh'][k]
@@ -105,19 +102,23 @@ def render(x, y):
                 texture = texturePool[filename]
                 width, height = texture.size
 
+                sprite_position = Vec3(i, j, -k)
+                if k in [1, 2, 3]:
+                    sprite_position.y += (grh['pixel_height']/PIXELS_PER_TILE - 1) / 2
+
                 # TODO: Clean this up, refactor sprite pool
-                if (map_x, map_y, k) not in sprite_pool:
+                if map_position not in sprite_pool:
                     s = Sprite(
                         texture,
-                        position=(i, j, -k),
+                        position=sprite_position,
                         texture_scale=(grh['pixel_width']/width, grh['pixel_height']/height),
                         texture_offset=(grh['sx']/width, height - (grh['sy']/height + grh['pixel_height']/height))
                     )
                     s.scale = (grh['pixel_width']/PIXELS_PER_TILE, grh['pixel_height']/PIXELS_PER_TILE, 1)
-                    sprite_pool[(map_x, map_y)] = s
+                    sprite_pool[map_position] = s
                 else:
-                    sprite_pool[(map_x, map_y)].set_position((i, j, -k))
-                    sprite_pool[(map_x, map_y)].enable()
+                    sprite_pool[map_position].set_position(sprite_position)
+                    sprite_pool[map_position].enable()
 
 
 def update():
@@ -126,13 +127,5 @@ def update():
     if need_to_render:
         need_to_render = False
         render(position.x, position.y)
-
-    # global texture_pool, sprite_pool
-    # print(f'# Textures: {len(texture_pool)}')
-    # print(f'# Sprites: {len(sprite_pool)}')
-
-
-# from panda3d.core import PStatClient
-# PStatClient.connect()
 
 app.run()
