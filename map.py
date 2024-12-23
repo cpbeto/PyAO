@@ -129,9 +129,11 @@ def load_inf(map_number: int, map: dict):
 
                     data = f.read(Struct('<H').size)
                     exit['x'] = Struct('<H').unpack_from(data)[0]
+                    exit['x'] -= 1 # VB6 indexes are 1-based
 
                     data = f.read(Struct('<H').size)
                     exit['y'] = Struct('<H').unpack_from(data)[0]
+                    exit['y'] -= 1 # VB6 indexes are 1-based
 
                     map['tiles'][x + 100 * y]['exit'] = exit
 
