@@ -12,12 +12,12 @@ class TexturePool:
     def __init__(self):
         self.textures = {}
 
-    def __getitem__(self, key):
-        if not isinstance(key, str):
+    def load(self, texture_name, force_load=False):
+        if not isinstance(texture_name, str):
             raise TypeError()
-        
-        if key not in self.textures:
-            img = Image.open(GRAPHICS_PATH + key + '.BMP')
+
+        if force_load or texture_name not in self.textures:
+            img = Image.open(GRAPHICS_PATH + texture_name + '.BMP')
             img = img.convert('RGBA')
 
             pixels = img.load()
@@ -28,6 +28,9 @@ class TexturePool:
                     if pixels[x, y] == TRANSPARENCY_MASK:
                         pixels[x, y] = (0, 0, 0, 0)
 
-            self.textures[key] = Texture(img)
+            self.textures[texture_name] = Texture(img)
 
-        return self.textures[key]
+        return self.textures[texture_name]
+
+    def __getitem__(self, texture_name):
+        return self.load(texture_name)
