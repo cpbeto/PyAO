@@ -74,13 +74,14 @@ def input(key):
 texturePool = TexturePool()
 sprite_pool = {}
 def render(camera_position: Vec4):
-    global layer_enabled
     camera_position = round(camera_position)
 
     for sprite in sprite_pool.values():
         sprite.disable()
 
     for z in range(4):
+        camera_position.z = z
+
         if not layer_enabled[z]:
             continue
         
@@ -138,7 +139,7 @@ def render(camera_position: Vec4):
 
 
 def update():
-    global need_to_render, position
+    global need_to_render
 
     if need_to_render:
         need_to_render = False
