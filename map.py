@@ -82,7 +82,7 @@ def load(map_number: int):
 
                 tile['exit'] = None
                 tile['npc'] = None
-                tile['object'] = None
+                tile['obj'] = None
 
                 tiles.append(tile)
 

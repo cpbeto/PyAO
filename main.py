@@ -73,8 +73,14 @@ def input(key):
 
 texturePool = TexturePool()
 sprite_pool = {}
+npc_pool = {}
+obj_pool = {}
 def render(camera_position: Vec4):
     camera_position = round(camera_position)
+
+    # TODO: Abstract into MapPool class
+    if camera_position.w not in map_pool:
+        map_pool[camera_position.w] = map.load(int(camera_position.w))
 
     for sprite in sprite_pool.values():
         sprite.disable()
@@ -96,9 +102,6 @@ def render(camera_position: Vec4):
                 if world_position.y < 0 or world_position.y >= 100:
                     continue
 
-                # TODO: Abstract into MapPool class
-                if world_position.w not in map_pool:
-                    map_pool[world_position.w] = map.load(int(world_position.w))
                 tiles = map_pool[world_position.w]['tiles']
 
                 # TODO: Improve tile indexing
@@ -136,6 +139,44 @@ def render(camera_position: Vec4):
                 else:
                     sprite_pool[world_position].set_position(screen_position)
                     sprite_pool[world_position].enable()
+
+    for npc_entity in npc_pool.values():
+        npc_entity.disable()
+
+    for j in range(-camera_height // 2, camera_height // 2 + 1):
+        for i in range(-camera_width // 2, camera_width // 2 + 1):
+            screen_position = Vec3(i, j, 0)
+            world_position = camera_position + (i, -j)
+
+            tiles = map_pool[world_position.w]['tiles']
+            tile = tiles[int(world_position.x) + 100 * int(world_position.y)]
+
+            if tile['npc']:
+                npc_index = tile['npc']
+                if npc_index not in npc_pool:
+                    npc_entity = Entity(model='cube', color=color.gold, collider='box', position=screen_position, scale=(0.5, 0.5))
+                    npc_pool[npc_index] = npc_entity
+                npc_pool[npc_index].set_position(screen_position)
+                npc_pool[npc_index].enable()
+
+    for obj_entity in obj_pool.values():
+        obj_entity.disable()
+
+    for j in range(-camera_height // 2, camera_height // 2 + 1):
+        for i in range(-camera_width // 2, camera_width // 2 + 1):
+            screen_position = Vec3(i, j, 0)
+            world_position = camera_position + (i, -j)
+
+            tiles = map_pool[world_position.w]['tiles']
+            tile = tiles[int(world_position.x) + 100 * int(world_position.y)]
+
+            if tile['obj']:
+                obj_index = tile['obj']['index']
+                if obj_index not in obj_pool:
+                    obj_entity = Entity(model='cube', color=color.blue, collider='box', position=screen_position, scale=(0.5, 0.5))
+                    obj_pool[obj_index] = obj_entity
+                obj_pool[obj_index].set_position(screen_position)
+                obj_pool[obj_index].enable()
 
 
 def update():
